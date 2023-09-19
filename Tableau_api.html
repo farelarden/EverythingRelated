@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Custom Web Data Connector</title>
+    <script src="https://connectors.tableau.com/libs/tableauwdc-3.6.latest.js"></script>
+    <script>
+        // Define the Web Data Connector
+        var myConnector = tableau.makeConnector();
+
+        // Define the data schema
+        myConnector.getSchema = function (schemaCallback) {
+            // Define your schema here
+            // For example, define columns and their data types
+            var cols = [
+                {
+                    id: "column1",
+                    dataType: tableau.dataTypeEnum.string
+                },
+                // Add more columns as needed
+            ];
+
+            var schema = {
+                tables: [
+                    {
+                        id: "myData",
+                        alias: "My Data",
+                        columns: cols
+                    }
+                ]
+            };
+
+            schemaCallback([schema]);
+        };
+
+        // Define the data retrieval method
+        myConnector.getData = function (table, doneCallback) {
+            // Make an API request with the authorization header
+            $.ajax({
+                url: "https://insto.serveo.net/api/dukungan/report/download?uuid=8c1fba4f-7b5f-4dae-b4ef-dda4cdcfa671",
+                headers: {
+                    "Authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTY5OTc0MDQsImlhdCI6MTY5NDQwNTQwNCwiaXNzIjoidGFuanVuZyIsInN1YiI6IkdhbGFuZyBEdWt1bmdhbiBMb2dpbiIsInVzZXIiOnsiYWxsb3dfc3ViX2NhbGVnIjpmYWxzZSwiYXBwX25hbWUiOiIiLCJjbGllbnRfaWQiOiIiLCJsZXZlbCI6IiIsIm5hbWUiOiJ0YW5qdW5nIiwicGhvbmVfbWFuZGF0b3J5IjpmYWxzZSwicGljdHVyZSI6IiIsInBpY3R1cmVfdGh1bWIiOiIiLCJyb2xlIjoibWFzdGVyIiwic3RhdHVzIjoiYWN0aXZlIiwic3ViX2NhbGVnIjoiIiwidGhlbWVfY29sb3IiOiIiLCJ0aGVtZV9sb2dvIjoiIiwidXNlcl9hZGRyZXNzIjp7InByb3ZpbnNpIjoiIiwia2FidXBhdGVuIjoiIiwia2VjYW1hdGFuIjoiIiwia2VsdXJhaGFuIjoiIiwiaWRfcHJvdmluc2kiOiIiLCJpZF9rYWJ1cGF0ZW4iOiIiLCJpZF9rZWNhbWF0YW4iOiIiLCJpZF9rZWx1cmFoYW4iOiIiLCJydCI6IiIsInJ3IjoiIiwic3RyZWV0IjoiIn0sInV1aWQiOiJiNjRmZmU1OC1lYmVkLTQ0NmYtOTMyNC0yMDAzNjNiOTAwY2EiLCJ3aWxheWFoIjpudWxsfX0.JuqMmWH4bJmwcwwN5dKu3Zh_6O2mGVwLapsSvykV3UA" // Add your token here
+                },
+                dataType: "json",
+                success: function (data) {
+                    // Process the API response and convert it to Tableau data format
+                    var tableData = [];
+
+                    // Map the API response to tableData
+
+                    table.appendRows(tableData);
+                    doneCallback();
+                }
+            });
+        };
+
+        // Register the Web Data Connector
+        tableau.registerConnector(myConnector);
+
+        // Create an event listener for when the connector is clicked
+        $(document).ready(function () {
+            $("#submitButton").click(function () {
+                tableau.connectionName = "My Data"; // Set a name for your data source
+                tableau.submit(); // Submit the connector for data retrieval
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Custom Web Data Connector</h1>
+    <p>Click the button below to connect to the API.</p>
+    <button id="submitButton">Connect</button>
+</body>
+</html>
